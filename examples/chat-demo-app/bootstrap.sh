@@ -12,12 +12,8 @@ if [ -z "$EMAIL" ]; then
 fi
 
 if [ -z "$TEMP_PASSWORD" ]; then
-    read -s -p "Enter temporary password for Cognito user (min 8 chars, requires numbers, special chars): " TEMP_PASSWORD
-    echo
-    if [[ ! $TEMP_PASSWORD =~ ^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$ ]]; then
-        echo "Password must be at least 8 characters and include numbers and special characters"
-        exit 1
-    fi
+    TEMP_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
+    echo "Generated temporary password: $TEMP_PASSWORD"
 fi
 
 # Check and prompt for AWS configuration if needed
@@ -49,14 +45,6 @@ if ! command -v cdk &> /dev/null; then
     echo "Installing AWS CDK CLI..."
     npm install -g aws-cdk
 fi
-
-# Clone repository
-git clone https://github.com/awslabs/multi-agent-orchestrator.git
-cd multi-agent-orchestrator
-
-# Navigate to demo app directory
-cd examples/chat-demo-app
-
 # Install dependencies
 npm install
 
